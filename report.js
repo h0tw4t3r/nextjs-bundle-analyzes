@@ -29,25 +29,47 @@ try {
 // if so, we can import the build manifest
 const buildMeta = require(path.join(nextMetaRoot, 'build-manifest.json'))
 
+// we check if it uses App Router
+const hasAppRouter = fs.existsSync(path.join(nextMetaRoot, 'app-build-manifest.json'))
+
+const buildMetaAppRouter = {}
+if (hasAppRouter) {
+  Object.assign(buildMetaAppRouter, require(path.join(nextMetaRoot, 'app-build-manifest.json')).pages)
+  Object.assign(buildMeta.pages, buildMetaAppRouter)
+}
+
 // this memory cache ensures we dont read any script file more than once
 // bundles are often shared between pages
 const memoryCache = {}
 
-// since _app is the template that all other pages are rendered into,
+// since _app or RootLayout is the template that all other pages are rendered into,
 // every page must load its scripts. we'll measure its size here
 const globalBundle = buildMeta.pages['/_app']
 const globalBundleSizes = getScriptSizes(globalBundle)
 
+let globalBundleAppRouter = []
+let globalBundleAppRouterSizes = false
+if (hasAppRouter && Object.hasOwn(buildMeta.pages, '/layout')) {
+  globalBundleAppRouter = buildMeta.pages['/layout']
+  globalBundleAppRouterSizes = getScriptSizes(globalBundleAppRouter)
+}
+
 // next, we calculate the size of each page's scripts, after
 // subtracting out the global scripts
+const onlyAppRouterPaths = Object.keys(buildMetaAppRouter)
 const allPageSizes = Object.values(buildMeta.pages).reduce(
   (acc, scriptPaths, i) => {
     const pagePath = Object.keys(buildMeta.pages)[i]
     const scriptSizes = getScriptSizes(
-      scriptPaths.filter((scriptPath) => !globalBundle.includes(scriptPath))
+      scriptPaths.filter((scriptPath) =>
+        !globalBundle.includes(scriptPath) ||
+        !globalBundleAppRouter.includes(scriptPath))
     )
 
-    acc[pagePath] = scriptSizes
+    acc[pagePath] = {
+      ...scriptSizes,
+      from: onlyAppRouterPaths.includes(pagePath) ? "app" : "pages"
+    }
     return acc
   },
   {}
@@ -57,6 +79,7 @@ const allPageSizes = Object.values(buildMeta.pages).reduce(
 const rawData = JSON.stringify({
   ...allPageSizes,
   __global: globalBundleSizes,
+  __global_app: globalBundleAppRouterSizes,
 })
 
 // log ouputs to the gh actions panel
