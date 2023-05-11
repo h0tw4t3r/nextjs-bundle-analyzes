@@ -61,54 +61,35 @@ delete baseBundle.__global_app
 
 // calculate the difference between the current bundle and the base branch's
 let globalBundleChanges = false
-const globalGzipDiff = globalBundleCurrent.gzip - globalBundleBase.gzip
-
-let globalGzipDiffAppRouter = 0
-if (globalBundleCurrentAppRouter && globalBundleBaseAppRouter) {
-  globalGzipDiffAppRouter = globalBundleCurrentAppRouter.gzip - globalBundleBaseAppRouter.gzip
-}
-if (globalBundleCurrentAppRouter && !globalBundleBaseAppRouter) {
-  globalGzipDiffAppRouter = globalBundleCurrentAppRouter.gzip
-}
-if (!globalBundleCurrentAppRouter && globalBundleBaseAppRouter) {
-  globalGzipDiffAppRouter = globalBundleBaseAppRouter.gzip * -1
+const globalGzipDiff = {
+  pages: globalBundleCurrent.gzip - globalBundleBase.gzip,
+  app: globalBundleCurrentAppRouter.gzip - globalBundleBaseAppRouter.gzip
 }
 
 // only report a global bundle size change if we don't have a minimum change
 // threshold configured, or if the change is greater than the threshold
-if (
-  globalGzipDiff !== 0 &&
-  (!('minimumChangeThreshold' in options) ||
-    Math.abs(globalGzipDiff) > options.minimumChangeThreshold)
-) {
-  globalBundleChanges = [{
-    route: 'pages',
-    page: 'global',
-    raw: globalBundleCurrent.raw,
-    gzip: globalBundleCurrent.gzip,
-    gzipDiff: globalGzipDiff,
-    increase: Math.sign(globalGzipDiff) > 0,
-  }]
-}
+for (const [route, gzipDiff] of Object.entries(globalGzipDiff)) {
+  if (
+    gzipDiff !== 0 &&
+    (!('minimumChangeThreshold' in options) ||
+    Math.abs(gzipDiff) > options.minimumChangeThreshold)
+  ) {
+    const change = {
+      route,
+      page: 'global',
+      raw: route === "pages"
+        ? globalBundleCurrent.raw
+        : globalBundleCurrentAppRouter.raw,
+      gzip: route === "pages"
+        ? globalBundleCurrent.gzip
+        : globalBundleCurrentAppRouter.gzip,
+      gzipDiff,
+      increase: Math.sign(gzipDiff) > 0,
+    }
 
-if (
-  globalGzipDiffAppRouter !== 0 &&
-  (!('minimumChangeThreshold' in options) ||
-    Math.abs(globalGzipDiffAppRouter) > options.minimumChangeThreshold)
-) {
-  const diff = {
-    route: 'app',
-    page: 'global',
-    raw: globalBundleCurrentAppRouter.raw || 0,
-    gzip: globalBundleCurrentAppRouter.gzip || 0,
-    gzipDiff: globalGzipDiffAppRouter,
-    increase: Math.sign(globalGzipDiffAppRouter) > 0,
-  }
-
-  if (globalBundleChanges) {
-    globalBundleChanges.push(diff)
-  } else {
-    globalBundleChanges = [diff]
+    Array.isArray(globalBundleChanges)
+      ? globalBundleChanges.push(change)
+      : globalBundleChanges = [change]
   }
 }
 

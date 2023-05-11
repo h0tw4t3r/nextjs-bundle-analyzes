@@ -48,7 +48,7 @@ const globalBundle = buildMeta.pages['/_app']
 const globalBundleSizes = getScriptSizes(globalBundle)
 
 let globalBundleAppRouter = []
-let globalBundleAppRouterSizes = false
+let globalBundleAppRouterSizes = { raw: 0, gzip: 0 }
 if (hasAppRouter && Object.hasOwn(buildMeta.pages, '/layout')) {
   globalBundleAppRouter = buildMeta.pages['/layout']
   globalBundleAppRouterSizes = getScriptSizes(globalBundleAppRouter)
