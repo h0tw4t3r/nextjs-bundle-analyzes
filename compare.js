@@ -82,7 +82,8 @@ if (
     Math.abs(globalGzipDiff) > options.minimumChangeThreshold)
 ) {
   globalBundleChanges = [{
-    page: 'global (pages)',
+    route: 'pages',
+    page: 'global',
     raw: globalBundleCurrent.raw,
     gzip: globalBundleCurrent.gzip,
     gzipDiff: globalGzipDiff,
@@ -96,7 +97,8 @@ if (
     Math.abs(globalGzipDiffAppRouter) > options.minimumChangeThreshold)
 ) {
   const diff = {
-    page: 'global (app)',
+    route: 'app',
+    page: 'global',
     raw: globalBundleCurrentAppRouter.raw || 0,
     gzip: globalBundleCurrentAppRouter.gzip || 0,
     gzipDiff: globalGzipDiffAppRouter,
@@ -271,7 +273,7 @@ function markdownTable(_data, globalBundleCurrent, globalBundleBase) {
   const showBudgetDiff = BUDGET && !!globalBundleBase
 
   // first we set up the table headers
-  return `Page | Size (compressed) | ${
+  return `Page (route) | Size (compressed) | ${
     globalBundleCurrent ? `First Load |` : ''
   }${showBudget ? ` % of Budget (\`${filesize(BUDGET)}\`) |` : ''}
 |---|---|${globalBundleCurrent ? '---|' : ''}${showBudget ? '---|' : ''}
@@ -298,7 +300,7 @@ ${data
       : 0
 
     return (
-      `| \`${d.page}\`` +
+      `| \`${d.page} (${d.route})\`` +
       renderSize(d, showBudgetDiff) +
       renderFirstLoad(globalBundleCurrent, firstLoadSize) +
       renderBudgetPercentage(
