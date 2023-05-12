@@ -28,12 +28,10 @@ describe('sort of integration', () => {
 
       beforeEach(() => {
         process.chdir(cwd)
-        execSync('npm install')
-        execSync('npm run build')
       })
 
       afterEach(() => {
-        rimraf.sync(path.join(cwd, buildOutputDirectory))
+        rimraf.sync(path.join(cwd, buildOutputDirectory, 'analyze'))
       })
 
       test(`bundle analysis action generates report and compares artifacts correctly ${dirName}`, () => {

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "pipeline": {
+    "build": {
+      "outputs": [".next/**", "!.next/cache/**"],
+      "dependsOn": ["^build"]
+    },
+    "bundle-analysis-test-custom-output-directory#build": {
+      "outputs": ["dist/**", "!dist/cache/**"],
+      "dependsOn": ["^build"]
+    }
+  }
+}

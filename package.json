@@ -8,7 +8,7 @@
     "compare": "./compare.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "turbo build && jest",
     "release": "changeset publish",
     "release:canary": "changeset publish --tag canary"
   },
@@ -48,6 +48,10 @@
     "@changesets/cli": "^2.26.1",
     "jest": "^27.0.6",
     "release": "^6.3.0",
-    "rimraf": "^3.0.2"
-  }
+    "rimraf": "^3.0.2",
+    "turbo": "^1.9.4"
+  },
+  "workspaces": [
+    "__tests__/__fixtures__/*"
+  ]
 }
