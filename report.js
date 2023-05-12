@@ -68,7 +68,7 @@ const allPageSizes = Object.values(buildMeta.pages).reduce(
 
     acc[pagePath] = {
       ...scriptSizes,
-      route: onlyAppRouterPaths.includes(pagePath) ? "app" : "pages"
+      router: onlyAppRouterPaths.includes(pagePath) ? "app" : "pages"
     }
     return acc
   },

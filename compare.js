@@ -72,17 +72,17 @@ const globalGzipDiff = {
 
 // only report a global bundle size change if we don't have a minimum change
 // threshold configured, or if the change is greater than the threshold
-for (const [route, gzipDiff] of Object.entries(globalGzipDiff)) {
+for (const [router, gzipDiff] of Object.entries(globalGzipDiff)) {
   if (
     gzipDiff !== 0 &&
     (!('minimumChangeThreshold' in options) ||
     Math.abs(gzipDiff) > options.minimumChangeThreshold)
   ) {
     const change = {
-      route,
+      router,
       page: 'global',
-      raw: globalBundleCurrent[route].raw,
-      gzip: globalBundleCurrent[route].gzip, 
+      raw: globalBundleCurrent[router].raw,
+      gzip: globalBundleCurrent[router].gzip, 
       gzipDiff,
       increase: Math.sign(gzipDiff) > 0,
     }
@@ -263,7 +263,7 @@ ${data
     // next, we go through each item in the bundle data that was passed in and render
     // a row for it. a couple calculations are run upfront to make rendering easier.
     const firstLoadSize = globalBundleCurrent
-      ? d.gzip + globalBundleCurrent[d.route].gzip
+      ? d.gzip + globalBundleCurrent[d.router].gzip
       : 0
 
     const budgetPercentage = showBudget
@@ -272,7 +272,7 @@ ${data
     const previousBudgetPercentage =
       globalBundleBase && d.gzipDiff
         ? (
-            ((globalBundleCurrent[d.route].gzip + d.gzip + d.gzipDiff) / BUDGET) *
+            ((globalBundleCurrent[d.router].gzip + d.gzip + d.gzipDiff) / BUDGET) *
             100
           ).toFixed(2)
         : 0
@@ -281,7 +281,7 @@ ${data
       : 0
 
     return (
-      `| \`${d.page} (${d.route})\`` +
+      `| \`${d.page} (${d.router})\`` +
       renderSize(d, showBudgetDiff) +
       renderFirstLoad(globalBundleCurrent, firstLoadSize) +
       renderBudgetPercentage(
