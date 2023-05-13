@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-const originalFilesize = require('filesize')
+const originalFilesize = require('filesize').filesize
 const numberToWords = require('number-to-words')
 const fs = require('fs')
 const path = require('path')
