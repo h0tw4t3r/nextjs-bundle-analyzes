@@ -246,7 +246,7 @@ function markdownTable(_data, globalBundleCurrent, globalBundleBase) {
   const showBudgetDiff = BUDGET && !!globalBundleBase
 
   // first we set up the table headers
-  return `Page (route) | Size (compressed) | ${
+  return `(router) Page | Size (compressed) | ${
     globalBundleCurrent ? `First Load |` : ''
   }${showBudget ? ` % of Budget (\`${filesize(BUDGET)}\`) |` : ''}
 |---|---|${globalBundleCurrent ? '---|' : ''}${showBudget ? '---|' : ''}
@@ -273,7 +273,7 @@ ${data
       : 0
 
     return (
-      `| \`${d.page} (${d.router})\`` +
+      `| (${d.router}) \`${d.page}\`` +
       renderSize(d, showBudgetDiff) +
       renderFirstLoad(globalBundleCurrent, firstLoadSize) +
       renderBudgetPercentage(
