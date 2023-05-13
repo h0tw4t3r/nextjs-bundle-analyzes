@@ -45,7 +45,7 @@ const memoryCache = {}
 // since _app or RootMainFiles is the template that all other pages are rendered into,
 // every page must load its scripts. we'll measure its size here
 const globalBundle = {
-  pages: buildMeta.pages['/_app']
+  pages: buildMeta.pages['/_app'],
   app: hasAppRouter ? buildMeta.rootMainFiles : []
 }
 const globalBundleSizes = {
