@@ -52,9 +52,10 @@ const globalBundleAppRouterSizes = hasAppRouter
 
 // next, we calculate the size of each page's scripts, after
 // subtracting out the global scripts (for App Router it is previously done)
+const pagesPaths = Object.keys(buildMeta.pages)
 const allPageSizes = Object.values(buildMeta.pages).reduce(
   (acc, scriptPaths, i) => {
-    const pagePath = Object.keys(buildMeta.pages)[i]
+    const pagePath = pagesPaths[i]
     const scriptSizes = getScriptSizes(
       filterExcludeFrom(scriptPaths, globalBundle)
     )
