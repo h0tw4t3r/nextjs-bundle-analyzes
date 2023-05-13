@@ -46,29 +46,22 @@ const memoryCache = {}
 // every page must load its scripts. we'll measure its size here
 const globalBundle = buildMeta.pages['/_app']
 const globalBundleSizes = getScriptSizes(globalBundle)
-
-let globalBundleAppRouter = []
-let globalBundleAppRouterSizes = { raw: 0, gzip: 0 }
-if (hasAppRouter && Object.hasOwn(buildMeta.pages, '/layout')) {
-  globalBundleAppRouter = buildMeta.pages['/layout']
-  globalBundleAppRouterSizes = getScriptSizes(globalBundleAppRouter)
-}
+const globalBundleAppRouterSizes = hasAppRouter
+  ? getScriptSizes(buildMeta.rootMainFiles)
+  : { raw: 0, gzip: 0 }
 
 // next, we calculate the size of each page's scripts, after
-// subtracting out the global scripts
-const onlyAppRouterPaths = Object.keys(buildMetaAppRouter)
+// subtracting out the global scripts (for App Router it is previously done)
 const allPageSizes = Object.values(buildMeta.pages).reduce(
   (acc, scriptPaths, i) => {
     const pagePath = Object.keys(buildMeta.pages)[i]
     const scriptSizes = getScriptSizes(
-      scriptPaths.filter((scriptPath) =>
-        !globalBundle.includes(scriptPath) ||
-        !globalBundleAppRouter.includes(scriptPath))
+      filterExcludeFrom(scriptPaths, globalBundle)
     )
 
     acc[pagePath] = {
       ...scriptSizes,
-      router: onlyAppRouterPaths.includes(pagePath) ? "app" : "pages"
+      router: 'pages'
     }
     return acc
   },
@@ -94,6 +87,11 @@ fs.writeFileSync(
 // --------------
 // Util Functions
 // --------------
+
+// filter the scripts of the page by excluding the global scripts
+function filterExcludeFrom(pageScripts, globalScripts) {
+  return pageScripts.filter((script) => !globalScripts.includes(script))
+}
 
 // given an array of scripts, return the total of their combined file sizes
 function getScriptSizes(scriptPaths) {
