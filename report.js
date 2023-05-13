@@ -42,13 +42,16 @@ if (hasAppRouter) {
 // bundles are often shared between pages
 const memoryCache = {}
 
-// since _app or RootLayout is the template that all other pages are rendered into,
+// since _app or RootMainFiles is the template that all other pages are rendered into,
 // every page must load its scripts. we'll measure its size here
-const globalBundle = buildMeta.pages['/_app']
-const globalBundleSizes = getScriptSizes(globalBundle)
-const globalBundleAppRouterSizes = hasAppRouter
-  ? getScriptSizes(buildMeta.rootMainFiles)
-  : { raw: 0, gzip: 0 }
+const globalBundle = {
+  pages: buildMeta.pages['/_app']
+  app: hasAppRouter ? buildMeta.rootMainFiles : []
+}
+const globalBundleSizes = {
+  pages: getScriptSizes(globalBundle.pages),
+  app: hasAppRouter ? getScriptSizes(globalBundle.app) : { raw: 0, gzip: 0 }
+}
 
 // next, we calculate the size of each page's scripts, after
 // subtracting out the global scripts (for App Router it is previously done)
@@ -57,7 +60,7 @@ const allPageSizes = Object.values(buildMeta.pages).reduce(
   (acc, scriptPaths, i) => {
     const pagePath = pagesPaths[i]
     const scriptSizes = getScriptSizes(
-      filterExcludeFrom(scriptPaths, globalBundle)
+      filterExcludeFrom(scriptPaths, globalBundle.pages)
     )
 
     acc[pagePath] = {
@@ -73,7 +76,6 @@ const allPageSizes = Object.values(buildMeta.pages).reduce(
 const rawData = JSON.stringify({
   ...allPageSizes,
   __global: globalBundleSizes,
-  __global_app: globalBundleAppRouterSizes,
 })
 
 // log ouputs to the gh actions panel
