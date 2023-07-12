@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-const originalFilesize = require('filesize')
+const originalFilesize = require('filesize').filesize
 const numberToWords = require('number-to-words')
 const fs = require('fs')
 const path = require('path')
@@ -57,20 +57,31 @@ delete baseBundle.__global
 
 // calculate the difference between the current bundle and the base branch's
 let globalBundleChanges = false
-const globalGzipDiff = globalBundleCurrent.gzip - globalBundleBase.gzip
+const globalGzipDiff = {
+  pages: globalBundleCurrent['pages'].gzip - globalBundleBase['pages'].gzip,
+  app: globalBundleCurrent['app'].gzip - globalBundleBase['app'].gzip,
+}
+
 // only report a global bundle size change if we don't have a minimum change
 // threshold configured, or if the change is greater than the threshold
-if (
-  globalGzipDiff !== 0 &&
-  (!('minimumChangeThreshold' in options) ||
-    Math.abs(globalGzipDiff) > options.minimumChangeThreshold)
-) {
-  globalBundleChanges = {
-    page: 'global',
-    raw: globalBundleCurrent.raw,
-    gzip: globalBundleCurrent.gzip,
-    gzipDiff: globalGzipDiff,
-    increase: Math.sign(globalGzipDiff) > 0,
+for (const [router, gzipDiff] of Object.entries(globalGzipDiff)) {
+  if (
+    gzipDiff !== 0 &&
+    (!('minimumChangeThreshold' in options) ||
+    Math.abs(gzipDiff) > options.minimumChangeThreshold)
+  ) {
+    const change = {
+      router,
+      page: 'global',
+      raw: globalBundleCurrent[router].raw,
+      gzip: globalBundleCurrent[router].gzip, 
+      gzipDiff,
+      increase: Math.sign(gzipDiff) > 0,
+    }
+
+    Array.isArray(globalBundleChanges)
+      ? globalBundleChanges.push(change)
+      : globalBundleChanges = [change]
   }
 }
 
@@ -108,12 +119,16 @@ for (let page in currentBundle) {
 // with our data in hand, we now get to a bunch of output formatting.
 // we start with any changes to the global bundle.
 if (globalBundleChanges) {
+
+  const globalBundleChangesIncrease =
+    globalBundleChanges.some(bundleChange => bundleChange.increase === true)
+
   // start with the headline, which will render differently depending on whether
   // there was an increase of decrease.
   output += `### ${
-    globalBundleChanges.increase ? '⚠️' : '🎉'
+    globalBundleChangesIncrease ? '⚠️' : '🎉'
   }  Global Bundle Size ${
-    globalBundleChanges.increase ? 'Increased' : 'Decreased'
+    globalBundleChangesIncrease ? 'Increased' : 'Decreased'
   }
   
 `
@@ -231,7 +246,7 @@ function markdownTable(_data, globalBundleCurrent, globalBundleBase) {
   const showBudgetDiff = BUDGET && !!globalBundleBase
 
   // first we set up the table headers
-  return `Page | Size (compressed) | ${
+  return `(router) Page | Size (compressed) | ${
     globalBundleCurrent ? `First Load |` : ''
   }${showBudget ? ` % of Budget (\`${filesize(BUDGET)}\`) |` : ''}
 |---|---|${globalBundleCurrent ? '---|' : ''}${showBudget ? '---|' : ''}
@@ -240,7 +255,7 @@ ${data
     // next, we go through each item in the bundle data that was passed in and render
     // a row for it. a couple calculations are run upfront to make rendering easier.
     const firstLoadSize = globalBundleCurrent
-      ? d.gzip + globalBundleCurrent.gzip
+      ? d.gzip + globalBundleCurrent[d.router].gzip
       : 0
 
     const budgetPercentage = showBudget
@@ -249,7 +264,7 @@ ${data
     const previousBudgetPercentage =
       globalBundleBase && d.gzipDiff
         ? (
-            ((globalBundleCurrent.gzip + d.gzip + d.gzipDiff) / BUDGET) *
+            ((globalBundleCurrent[d.router].gzip + d.gzip + d.gzipDiff) / BUDGET) *
             100
           ).toFixed(2)
         : 0
@@ -258,7 +273,7 @@ ${data
       : 0
 
     return (
-      `| \`${d.page}\`` +
+      `| (${d.router}) \`${d.page}\`` +
       renderSize(d, showBudgetDiff) +
       renderFirstLoad(globalBundleCurrent, firstLoadSize) +
       renderBudgetPercentage(

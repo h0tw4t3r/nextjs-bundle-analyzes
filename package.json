@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-bundle-analysis",
+  "name": "@h0tw4t3r/nextjs-bundle-analysis",
   "version": "0.5.0",
   "description": "Analyzes each PR's impact on your next.js app's bundle size and displays it using a comment",
   "bin": {
@@ -8,7 +8,7 @@
     "compare": "./compare.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "turbo build && jest",
     "release": "changeset publish",
     "release:canary": "changeset publish --tag canary"
   },
@@ -37,17 +37,21 @@
   },
   "homepage": "https://github.com/hashicorp/nextjs-bundle-analysis#readme",
   "dependencies": {
-    "filesize": "^7.0.0",
+    "filesize": "^10.0.7",
     "gzip-size": "^6.0.0",
     "inquirer": "^8.1.1",
-    "mkdirp": "^1.0.4",
+    "mkdirp": "^3.0.1",
     "number-to-words": "^1.2.4"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.8",
     "@changesets/cli": "^2.26.1",
-    "jest": "^27.0.6",
+    "jest": "^29.5.0",
     "release": "^6.3.0",
-    "rimraf": "^3.0.2"
-  }
+    "rimraf": "^5.0.0",
+    "turbo": "^1.9.4"
+  },
+  "workspaces": [
+    "__tests__/__fixtures__/*"
+  ]
 }

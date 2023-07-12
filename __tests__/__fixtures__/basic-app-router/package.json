@@ -1,5 +1,5 @@
 {
-  "name": "bundle-analysis-test-custom-output-directory",
+  "name": "bundle-analysis-test-basic-app-router",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,6 @@
   },
   "nextBundleAnalysis": {
     "budget": 358400,
-    "budgetPercentIncreaseRed": 20,
-    "buildOutputDirectory": "dist"
+    "budgetPercentIncreaseRed": 20
   }
 }
