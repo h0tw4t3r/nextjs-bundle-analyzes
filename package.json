@@ -1,5 +1,5 @@
 {
-  "name": "@h0tw4t3r/nextjs-bundle-analysis",
+  "name": "@hotwater/nextjs-bundle-analysis",
   "version": "0.1.0",
   "description": "Analyzes each PR's impact on your next.js app's bundle size and displays it using a comment",
   "bin": {
